@@ -1,5 +1,5 @@
 # VariousBle
-一个支持连接多种类型和多个设备的低功耗蓝牙通信模块。模块和间面充分解耦并且易于扩展。
+一个支持连接多种类型和多个设备的低功耗蓝牙通信模块。模块和界面充分解耦并且易于扩展。
 # 写这个模块的原因
 最近在开发一个移动健康应用，需要同时支持多种智能可穿戴设备。每个设备的UUID和消息处理都不一样，同时模块还需要与界面交互。按照常规的写法，需要在service中依赖和定义各种各样的callback和方法，并且需要强行记住它们之间的配对关系，比如connect1()只能调用callback1,connect2()只能调用callback2等，这样一来service的代码非常庞杂，并且难以维护和扩展。
 # 模块的理念
@@ -11,5 +11,6 @@
 
 4、基于EventBus里Event可以继承的强大特性，Service只接收界面事件的基类SrvEvent，并自动处理一些通用的事件，如开始停止扫描、连接或断开某个蓝牙等。遇到不能处理的自定义事件再转交给 事件对应该的 GattCallback去处理。
 
+5、Service维护一个HashMap，键为设备的address，值为GattMgr的不同设备实现类的实例。GattMgr实现了BluetoothGattCallback并且管理着一个BluetoothGatt。当Service收到一个连接请求时，先通过address查找HashMap中有没有对应的GattMgr。如果没有，则需要通过SrvCfg中配置的规则找出其对应的GattMgr。这个规则指的是通过设备名称或者地址列表等找出它是哪种设备，如血压计的名称一般都是BPM-开头。
 # 模块的现状
-基本框架已经实现，如果增加新的设备，不需要改动Service中的代码，只需在Event模块中定义好事件，并在SrvCfg类中配置好事件、设备类型和和GattCallback实现类的关联即可。
+基本框架已经实现，如果增加新的设备，不需要改动Service中的代码，只需在Event模块中定义好事件，实现其GattCallback类，并在SrvCfg类中配置好事件、设备类型和GattCallback实现类的关联即可。
