@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/VariousBle.iml" filepath="$PROJECT_DIR$/VariousBle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/blesrv/blesrv.iml" filepath="$PROJECT_DIR$/blesrv/blesrv.iml" />
+      <module fileurl="file://$PROJECT_DIR$/btevent/btevent.iml" filepath="$PROJECT_DIR$/btevent/btevent.iml" />
+    </modules>
+  </component>
+</project>
