@@ -7,7 +7,14 @@ import android.yimingyu.net.btevent.base.UiEvent;
  * Email：461072496@qq.com
  */
 public class EVENT_UI_BPM extends UiEvent {
-    public String deviceType="血压计";
+    public static final String ACTION_START_TEST="ACTION_START_TEST";
+    public static final String ACTION_STOP_TEST="ACTION_STOP_TEST";
+    public static final String ACTION_VOICE_ON="ACTION_VOICE_ON";
+    public static final String ACTION_VOICE_OFF="ACTION_VOICE_OFF";
+    public static final String ACTION_VOICE_LOOP="ACTION_VOICE_LOOP";
+    public static final String ACTION_VOICE_SET="ACTION_VOICE_SET";
+
+
     public EVENT_UI_BPM(String action, String address) {
         super(action, address);
     }

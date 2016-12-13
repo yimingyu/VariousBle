@@ -7,6 +7,9 @@ import android.yimingyu.net.btevent.base.SrvEvent;
  * Email：461072496@qq.com
  */
 public class Event_SRV_BPM extends SrvEvent{
+    public static final String ACTION_RESULT_AP="ACTION_RESULT_AP";    //AtmosphericPressure
+    public static final String ACTION_RESULT_BL="ACTION_RESULT_BL";    //BatteryLevel
+
     public Event_SRV_BPM(String action, String deviceType, String address, Object data) {
         super(action, deviceType, address, data);
     }

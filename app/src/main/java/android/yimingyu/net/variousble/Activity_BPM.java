@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
-import android.yimingyu.net.blesrv.device.BPM;
 import android.yimingyu.net.blesrv.util.LogUtil;
 import android.yimingyu.net.btevent.base.GeneralActions;
 import android.yimingyu.net.btevent.bpm.EVENT_UI_BPM;
@@ -14,6 +13,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_START_TEST;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_STOP_TEST;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_LOOP;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_OFF;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_ON;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_SET;
+import static android.yimingyu.net.btevent.bpm.Event_SRV_BPM.ACTION_RESULT_AP;
+import static android.yimingyu.net.btevent.bpm.Event_SRV_BPM.ACTION_RESULT_BL;
+
 public class Activity_BPM extends AppCompatActivity implements View.OnClickListener{
     private static final int REQUST_CODE = 1;
     int voiceNumber = 1;
@@ -22,24 +30,24 @@ public class Activity_BPM extends AppCompatActivity implements View.OnClickListe
         String address="00:15:83:00:3D:84";
         switch (view.getId()) {
             case R.id.btn_start_test:
-                EventBus.getDefault().post(new EVENT_UI_BPM(BPM.ACTION_START_TEST,address));
+                EventBus.getDefault().post(new EVENT_UI_BPM(ACTION_START_TEST,address));
                 return;
             case R.id.btn_stop_test:
-                EventBus.getDefault().post(new EVENT_UI_BPM(BPM.ACTION_STOP_TEST,address));
+                EventBus.getDefault().post(new EVENT_UI_BPM(ACTION_STOP_TEST,address));
                 return;
             case R.id.btn_start_voice:
-                EventBus.getDefault().post(new EVENT_UI_BPM(BPM.ACTION_VOICE_ON,address));
+                EventBus.getDefault().post(new EVENT_UI_BPM(ACTION_VOICE_ON,address));
                 return;
             case R.id.btn_stop_voice:
-                EventBus.getDefault().post(new EVENT_UI_BPM(BPM.ACTION_VOICE_OFF,address));
+                EventBus.getDefault().post(new EVENT_UI_BPM(ACTION_VOICE_OFF,address));
                 return;
             case R.id.btn_loop_voice:
-                EventBus.getDefault().post(new EVENT_UI_BPM(BPM.ACTION_VOICE_LOOP,address));
+                EventBus.getDefault().post(new EVENT_UI_BPM(ACTION_VOICE_LOOP,address));
                 return;
             case R.id.btn_set_voice:
                 voiceNumber++;
                 if (voiceNumber > 3) voiceNumber = 1;
-                EventBus.getDefault().post(new EVENT_UI_BPM(BPM.ACTION_VOICE_SET,address,voiceNumber));
+                EventBus.getDefault().post(new EVENT_UI_BPM(ACTION_VOICE_SET,address,voiceNumber));
                 return;
             case R.id.btn_connect:
                 EventBus.getDefault().post(new EVENT_UI_BPM(GeneralActions.ACTION_CONNECT,address));
@@ -92,10 +100,10 @@ public class Activity_BPM extends AppCompatActivity implements View.OnClickListe
             case GeneralActions.ACTION_RESULT_ERR:
                 LogUtil.e("测量失败，原因"+eventSrvBpm.data);
                 break;
-            case BPM.ACTION_RESULT_AP:
+            case ACTION_RESULT_AP:
                 tv_ap.setText("充气压："+eventSrvBpm.data);
                 break;
-            case BPM.ACTION_RESULT_BL:
+            case ACTION_RESULT_BL:
                 tv_bl.setText("电量："+eventSrvBpm.data);
                 break;
         }

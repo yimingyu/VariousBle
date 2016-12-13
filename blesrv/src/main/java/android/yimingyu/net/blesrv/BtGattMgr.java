@@ -26,23 +26,41 @@ public abstract class BtGattMgr extends GattMgr{
         this.autoNotify=autoNotify;
     }
 
+
+
+
+    private boolean tryReconnect=false;
+    public void setTryReconnect(boolean bl){
+        tryReconnect=bl;
+    }
+
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         String address=gatt.getDevice().getAddress();
+        String name=gatt.getDevice().getName();
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             if(status==133){
-                connected = false;
-                LogUtil.e("连接虽然成功但是status=133相于当断开了连接");
+                connectStatus = 0;
+                LogUtil.e(DEVICE_TYPE+" "+name+" "+address+"连接虽然成功但是status=133相于当断开了连接");
                 EventBus.getDefault().post(new SrvEvent(GeneralActions.ACTION_DEVICE_DISCONNECTED,DEVICE_TYPE,address,status));
-                close();
+                if(tryReconnect){
+                    connect();
+                }else {
+                    close();
+                }
             }else {
-                connected = true;
+                connectStatus = 2;
                 EventBus.getDefault().post(new SrvEvent(GeneralActions.ACTION_DEVICE_CONNECTED, DEVICE_TYPE, address));
-                LogUtil.e(DEVICE_TYPE, address + "连接成功，" + (gatt.discoverServices() ? "开始" : "但是无法") + "搜索服务");
+                LogUtil.e(DEVICE_TYPE, name+" "+address + "连接成功，" + (gatt.discoverServices() ? "开始" : "但是无法") + "搜索服务");
             }
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-            connected=false;
+            connectStatus=0;
             EventBus.getDefault().post(new SrvEvent(GeneralActions.ACTION_DEVICE_DISCONNECTED,DEVICE_TYPE,address));
-            LogUtil.e(DEVICE_TYPE,  address +"已经断开连接");
+            LogUtil.e(DEVICE_TYPE,  name+" "+address +"已经断开连接，具体"+status+" "+newState);
+            if(tryReconnect){
+                connect();
+            }else {
+                close();
+            }
         }
     }
 

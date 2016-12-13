@@ -14,6 +14,14 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.UUID;
 
 import static android.yimingyu.net.blesrv.SrvCfg.DEVICE_TYPE_BPM;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_START_TEST;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_STOP_TEST;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_LOOP;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_OFF;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_ON;
+import static android.yimingyu.net.btevent.bpm.EVENT_UI_BPM.ACTION_VOICE_SET;
+import static android.yimingyu.net.btevent.bpm.Event_SRV_BPM.ACTION_RESULT_AP;
+import static android.yimingyu.net.btevent.bpm.Event_SRV_BPM.ACTION_RESULT_BL;
 
 /**
  * Author：Mingyu Yi on 2016/9/26 10:01
@@ -29,20 +37,6 @@ public class BPM extends BtGattMgr {
 
     //当前测试设备的名字以BPM-开头，地址是00:15:83:00:3D:84
     private static final String BPM_="00:15:83:00:3D:84";
-
-
-    public static final String ACTION_RESULT_AP="ACTION_RESULT_AP";    //AtmosphericPressure
-    public static final String ACTION_RESULT_BL="ACTION_RESULT_BL";    //BatteryLevel
-
-    public static final String ACTION_START_TEST="ACTION_START_TEST";
-    public static final String ACTION_STOP_TEST="ACTION_STOP_TEST";
-    public static final String ACTION_VOICE_ON="ACTION_VOICE_ON";
-    public static final String ACTION_VOICE_OFF="ACTION_VOICE_OFF";
-    public static final String ACTION_VOICE_LOOP="ACTION_VOICE_LOOP";
-    public static final String ACTION_VOICE_SET="ACTION_VOICE_SET";
-
-
-
 
     private static final byte COMMAND_BASE_FLAG= DataUtil.xorAll(new byte[]{0x02,0x40,(byte) 0xdc,0x01},1);
     private static final byte[] COMMAND_START_TEST={0x02,0x40,(byte) 0xdc,0x01,(byte) 0xa1,0x3c};
@@ -108,9 +102,9 @@ public class BPM extends BtGattMgr {
         }
         if(bytes[3]==2){
             short ap= DataUtil.getShort(bytes,4);
-            EventBus.getDefault().post(new Event_SRV_BPM(BPM.ACTION_RESULT_AP,DEVICE_TYPE,address,ap));
+            EventBus.getDefault().post(new Event_SRV_BPM(ACTION_RESULT_AP,DEVICE_TYPE,address,ap));
         }else if(bytes[3]==3){
-            EventBus.getDefault().post(new Event_SRV_BPM(BPM.ACTION_RESULT_BL,DEVICE_TYPE,address,(int)bytes[6]));
+            EventBus.getDefault().post(new Event_SRV_BPM(ACTION_RESULT_BL,DEVICE_TYPE,address,(int)bytes[6]));
         }else if(bytes[3]==12){
             if(DataUtil.isBitSet(bytes[4],5)){
                 EventBus.getDefault().post(new Event_SRV_BPM(GeneralActions.ACTION_RESULT_ERR,DEVICE_TYPE,address,(int)bytes[12]));

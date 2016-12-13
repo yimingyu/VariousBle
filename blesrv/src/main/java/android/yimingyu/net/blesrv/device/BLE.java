@@ -48,7 +48,6 @@ public class BLE extends BtGattMgr {
 
     @Override
     protected void dealUiEvent(UiEvent uiEvent) {
-
     }
 
     public void setWriteUUID(UUID uuid){

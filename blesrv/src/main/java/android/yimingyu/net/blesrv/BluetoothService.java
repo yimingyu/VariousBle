@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,12 +18,14 @@ import android.yimingyu.net.btevent.base.GeneralActions;
 import android.yimingyu.net.btevent.base.SrvEvent;
 import android.yimingyu.net.btevent.base.SrvEvent_DEVICE_FOUND;
 import android.yimingyu.net.btevent.base.UiEvent;
+import android.yimingyu.net.btevent.bpm.EVENT_UI_BPM;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Author：Mingyu Yi on 2016/11/8 14:32
@@ -48,7 +51,7 @@ public class BluetoothService extends Service{
         environmentInitialed=initialEnvironment();
         initialData();
         EventBus.getDefault().register(this);
-//        startScan();
+        if(autoDiscovery) startScan();
         LogUtil.e("BLE服务启动");
     }
     @Override
@@ -75,14 +78,16 @@ public class BluetoothService extends Service{
                 short rssi = intent.getExtras().getShort(BluetoothDevice.EXTRA_RSSI);
                 String name=device.getName();
                 String type= SrvCfg.getDeviceTypeByName(name);
-                EventBus.getDefault().post(new SrvEvent_DEVICE_FOUND(GeneralActions.ACTION_DEVICE_FOUND,type,device.getAddress(),name,rssi));
+                if(EventBus.getDefault().hasSubscriberForEvent(SrvEvent.class)) {
+                    EventBus.getDefault().post(new SrvEvent_DEVICE_FOUND(GeneralActions.ACTION_DEVICE_FOUND, type, device.getAddress(), name, rssi));
+                }
                 if(type.equals(SrvCfg.DEVICE_TYPE_BPM)){
 //                    Log.e(TAG,"找到血压计，开始自动连接");
 //                    connect(device.getAddress());
                 }
             } else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
                 EventBus.getDefault().post(new SrvEvent(GeneralActions.ACTION_DISCOVERY_FINISH));
-//                startScan();
+                if(cycleDiscovery) startScan();
             }
         }
     }
@@ -93,14 +98,14 @@ public class BluetoothService extends Service{
         }
         stopScan();
         bluetoothAdapter.startDiscovery();
-        LogUtil.e("重新开始扫描");
     }
     public void stopScan(){
         if(bluetoothAdapter.isDiscovering()){
-            LogUtil.e("停止扫描");
             bluetoothAdapter.cancelDiscovery();
         }
     }
+    public static boolean autoDiscovery=true;
+    public static boolean cycleDiscovery=true;
 
     public boolean initialEnvironment() {
         if(!bleSupported()){
@@ -142,9 +147,12 @@ public class BluetoothService extends Service{
         }
         GattMgr mgr=gattServices.get(address);
         if(mgr!=null){
-            if(mgr.connected){
-                LogUtil.e(address+"已经处于连接状态");
+            if(mgr.connectStatus==2) {
+                LogUtil.e(address + "已经处于连接状态");
                 return true;
+            }else if(mgr.connectStatus==1){
+                LogUtil.e("正在努力连接中"+address);
+                return false;
             }
             mgr.close();  //之所以不用已存在的gatt是因为太慢
         }else {
@@ -156,7 +164,15 @@ public class BluetoothService extends Service{
         }
         BluetoothGatt gatt=device.connectGatt(this,false,mgr);
         mgr.setBluetoothGatt(gatt);
+        mgr.connectStatus=1;
         gattServices.put(address,mgr);
+
+
+        List<BluetoothDevice> list=bluetoothManager.getConnectedDevices(BluetoothProfile.GATT_SERVER);
+        LogUtil.e("GattServer连接了"+list.size());
+        for(BluetoothDevice d:list){
+            LogUtil.e("连接了"+d.getName()+" "+d.getAddress());
+        }
         return false;
     }
     public void disconnect(String address){

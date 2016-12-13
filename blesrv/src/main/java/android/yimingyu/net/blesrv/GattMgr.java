@@ -37,15 +37,19 @@ public abstract class GattMgr extends BluetoothGattCallback{
     public void setBluetoothGatt(BluetoothGatt bluetoothGatt){
         this.bluetoothGatt = bluetoothGatt;
     }
-    public boolean connected=false;
-    public boolean connect(){
-        return connected||bluetoothGatt.connect();
+    public int connectStatus=0;  //连接状态：0未连接、1连接中、2已连接、3断开中
+    public int connect(){
+        if(connectStatus==0) bluetoothGatt.connect();
+        return connectStatus;
     }
     public void disconnect(){
-        if(connected) bluetoothGatt.disconnect();
+        if(connectStatus==2) {
+            bluetoothGatt.disconnect();
+            connectStatus=3;
+        }
     }
     public void close(){
-        connected=false;
+        connectStatus=0;
         bluetoothGatt.close();
     }
     public boolean enableNotification(boolean enable){

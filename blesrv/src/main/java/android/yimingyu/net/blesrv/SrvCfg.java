@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.yimingyu.net.blesrv.device.BLE;
 import android.yimingyu.net.blesrv.device.BPM;
 import android.yimingyu.net.blesrv.device.FT;
+import android.yimingyu.net.blesrv.device.WS;
 import android.yimingyu.net.btevent.base.UiEvent;
 import android.yimingyu.net.btevent.bpm.EVENT_UI_BPM;
 
@@ -33,6 +34,7 @@ public class SrvCfg {
         maps2.put(DEVICE_TYPE_BPM,BPM.class);
         maps2.put(DEVICE_TYPE_FT,FT.class);
         maps2.put(DEVICE_TYPE_BLE, BLE.class);
+        maps2.put(DEVICE_TYPE_WS, WS.class);
     }
 
     public static GattMgr getMgrByEvent(UiEvent uiEvent){
@@ -60,6 +62,8 @@ public class SrvCfg {
             return DEVICE_TYPE_WB;
         }else if(name.startsWith("AET-")){
             return DEVICE_TYPE_FT;
+        }else if(name.startsWith("Electronic Scale")){
+            return DEVICE_TYPE_WS;
         }else {
             return DEVICE_TYPE_BLE;
         }
@@ -73,6 +77,12 @@ public class SrvCfg {
 
 
 
+    private static final HashMap<String,Boolean> autoConnect=new HashMap<>();
+    static {
+        autoConnect.put("00:15:83:00:3D:84",true);
+        autoConnect.put("7C:EC:79:C1:C1:51",true);
+        autoConnect.put("88:1B:99:04:0E:31",true);
+    }
 
 
 
