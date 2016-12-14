@@ -23,4 +23,13 @@ public class UiEvent{
         this.address=address;
         this.data = data;
     }
+
+    @Override
+    public String toString() {
+        return "UiEvent{" +
+                "action='" + action + '\'' +
+                ", address='" + address + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

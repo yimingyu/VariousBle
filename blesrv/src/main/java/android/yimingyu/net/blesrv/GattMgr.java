@@ -3,12 +3,16 @@ package android.yimingyu.net.blesrv;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothProfile;
+import android.content.Context;
 import android.yimingyu.net.blesrv.util.BluetoothUtil;
-import android.yimingyu.net.blesrv.util.LogUtil;
 import android.yimingyu.net.btevent.base.UiEvent;
 
 import java.util.UUID;
+
+import static android.bluetooth.BluetoothProfile.STATE_CONNECTED;
+import static android.bluetooth.BluetoothProfile.STATE_CONNECTING;
+import static android.bluetooth.BluetoothProfile.STATE_DISCONNECTED;
+import static android.bluetooth.BluetoothProfile.STATE_DISCONNECTING;
 
 
 /**
@@ -26,30 +30,37 @@ public abstract class GattMgr extends BluetoothGattCallback{
     public abstract UUID getReadUUID();
     public abstract UUID getWriteUUID();
 
-    protected abstract void dealUiEvent(UiEvent uiEvent);
-    protected void dealUiEventIfNotConnected(UiEvent uiEvent){};
+    protected void dealUiEvent(UiEvent uiEvent){
+    };
 
     public String address;
     private BluetoothGatt bluetoothGatt;
     public GattMgr(String address) {
         this.address = address;
     }
-    public void setBluetoothGatt(BluetoothGatt bluetoothGatt){
-        this.bluetoothGatt = bluetoothGatt;
-    }
-    public int connectStatus=0;  //连接状态：0未连接、1连接中、2已连接、3断开中
-    public int connect(){
-        if(connectStatus==0) bluetoothGatt.connect();
+    public int connectStatus= STATE_DISCONNECTED;  //连接状态：0未连接、1连接中、2已连接、3断开中
+
+    public int connect(BluetoothDevice device, Context context){//个人觉得这个方法比BluetoothGatt.connect()方法快
+        connectStatus=STATE_CONNECTING;
+        bluetoothGatt=device.connectGatt(context,false,this);
         return connectStatus;
     }
-    public void disconnect(){
-        if(connectStatus==2) {
-            bluetoothGatt.disconnect();
-            connectStatus=3;
+    public int connect(){
+        if(connectStatus!=STATE_CONNECTING) {
+            bluetoothGatt.connect();
+            connectStatus=STATE_CONNECTING;
         }
+        return connectStatus;
+    }
+    public int disconnect(){
+        if(connectStatus==STATE_CONNECTED) {
+            bluetoothGatt.disconnect();
+            connectStatus=STATE_DISCONNECTING;
+        }
+        return connectStatus;
     }
     public void close(){
-        connectStatus=0;
+        connectStatus=STATE_DISCONNECTED;
         bluetoothGatt.close();
     }
     public boolean enableNotification(boolean enable){

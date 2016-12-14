@@ -2,6 +2,7 @@ package android.yimingyu.net.blesrv.device;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothProfile;
 import android.yimingyu.net.blesrv.BtGattMgr;
 import android.yimingyu.net.blesrv.util.DataUtil;
 import android.yimingyu.net.blesrv.util.LogUtil;
@@ -11,6 +12,7 @@ import android.yimingyu.net.btevent.bpm.Event_SRV_BPM;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import static android.yimingyu.net.blesrv.SrvCfg.DEVICE_TYPE_BPM;
@@ -44,6 +46,27 @@ public class BPM extends BtGattMgr {
     private static final byte[] COMMAND_VOICE_OFF={0x02,0x40,(byte) 0xdc,0x01,(byte) 0xa3,0x3e};
     private static final byte[] COMMAND_VOICE_ON={0x02,0x40,(byte) 0xdc,0x01,(byte) 0xa4,0x39};
     private static final byte[] COMMAND_VOICE_LOOP={0x02,0x40,(byte) 0xdc,0x01,(byte) 0xa5,(byte) (COMMAND_BASE_FLAG^(byte)0xa5)};
+
+
+    private static final HashMap<Integer,String> errCode=new HashMap<>();
+    static {
+        errCode.put(1,"传感器信号异常");
+        errCode.put(2,"测量不出结果");
+        errCode.put(3,"测量结果异常");
+        errCode.put(4,"腕带过松或漏气");
+        errCode.put(5,"腕带过紧或气路堵塞");
+        errCode.put(6,"测量中压力干扰严重");
+        errCode.put(7,"压力超过300");
+    }
+
+
+
+
+    @Override
+    public boolean defaultTryReconnect() {
+        return true;
+    }
+
     public BPM(String address) {
         super(address);
     }
@@ -71,6 +94,10 @@ public class BPM extends BtGattMgr {
 
     @Override
     protected void dealUiEvent(UiEvent uiEvent) {
+        if(connectStatus!= BluetoothProfile.STATE_CONNECTED){
+            LogUtil.e(DEVICE_TYPE,address+"没有连接");
+            return;
+        }
         switch (uiEvent.action){
             case ACTION_START_TEST:
                 switchTest(true);
@@ -107,7 +134,7 @@ public class BPM extends BtGattMgr {
             EventBus.getDefault().post(new Event_SRV_BPM(ACTION_RESULT_BL,DEVICE_TYPE,address,(int)bytes[6]));
         }else if(bytes[3]==12){
             if(DataUtil.isBitSet(bytes[4],5)){
-                EventBus.getDefault().post(new Event_SRV_BPM(GeneralActions.ACTION_RESULT_ERR,DEVICE_TYPE,address,(int)bytes[12]));
+                EventBus.getDefault().post(new Event_SRV_BPM(GeneralActions.ACTION_RESULT_ERR,DEVICE_TYPE,address,errCode.get((int)bytes[12])));
             }else {
                 short hbp= DataUtil.getShort(bytes,5);
                 short lbp= DataUtil.getShort(bytes,7);
@@ -117,24 +144,30 @@ public class BPM extends BtGattMgr {
         }
     }
 
-
+    public boolean isTesting=false;
     public void switchTest(boolean enable){
-        writeChar(enable?COMMAND_START_TEST:COMMAND_STOP_TEST);
+        if(enable==isTesting) return;
+        boolean result=writeChar(enable?COMMAND_START_TEST:COMMAND_STOP_TEST);
+        if(result){
+            isTesting=enable;
+        }else {
+            LogUtil.e(DEVICE_TYPE,(enable?"开始":"停止")+"血压测试失败，血压计没有连接");
+        }
     }
     public void switchVoicePrompt(boolean enable){
         boolean result=writeChar(enable?COMMAND_VOICE_ON:COMMAND_VOICE_OFF);
-        LogUtil.e(getDeviceType(),(enable?"开始":"停止")+"语音提示，结果"+result);
+        LogUtil.e(DEVICE_TYPE,(enable?"开始":"停止")+"语音提示，结果"+result);
     }
     public void startVoiceLoop(){
         boolean result=writeChar(COMMAND_VOICE_LOOP);
-        LogUtil.e(getDeviceType(),"开始循环切换语音，结果"+result);
+        LogUtil.e(DEVICE_TYPE,"开始循环切换语音，结果"+result);
     }
     public void setVoiceType(int number){
         byte flag=(byte) (COMMAND_BASE_FLAG^(byte)0xa6);
         flag=(byte) (flag^(byte)number);
         byte[] command={0x02,0x40,(byte) 0xdc,0x01,(byte) 0xa6,(byte) number,flag};
         boolean result=writeChar(command);
-        LogUtil.e(getDeviceType(),"将语音类型切换为： "+number+" 结果"+result);
+        LogUtil.e(DEVICE_TYPE,"将语音类型切换为： "+number+" 结果"+result);
     }
 
 }

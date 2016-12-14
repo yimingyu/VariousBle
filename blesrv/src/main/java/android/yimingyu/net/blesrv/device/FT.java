@@ -35,28 +35,26 @@ public class FT extends BtGattMgr {
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         byte[] data = characteristic.getValue();
         StringBuffer sb = new StringBuffer(data.length);
-        String sTemp;
         for (int i = 0; i < data.length; i++) {
-            sTemp = Integer.toHexString(0xFF & data[i]);
-
-            sb.append(sTemp.toUpperCase()+",");
+            sb.append(Integer.toHexString(0xFF & data[i]).toUpperCase()+",");
         }
         LogUtil.e("收到消息："+sb.toString());
-        String cls_temp ="";
+        String t ="";
 
         if (0xE0 == (0xFF & data[9]) &&0x00 == (0xFF & data[10])){
-            cls_temp = "0.0";
-            // 温度过高，显示HI
+            t = "0.0";
+            // 温度过低，显示LO
         }else  if (0xF0 == (0xFF & data[9]) &&0x00 == (0xFF & data[10])){
-            cls_temp = "99.0";
+            t = "99.0";
+            // 温度过高，显示HI
         }else{
-            float temperature = (float)((float)data[9] + (float)data[10] / 100);
+            float temperature = (float)data[9] + (float)data[10] / 100;
 
             double res = Math.floor(temperature * 10) / 10;
 
-            cls_temp = res+"";
+            t = res+"";
         }
-        LogUtil.e("当前温度是："+cls_temp);
+        LogUtil.e("当前温度是："+t);
     }
 
     @Override

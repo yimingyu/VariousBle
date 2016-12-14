@@ -22,6 +22,7 @@ public class WS extends BtGattMgr {
     protected static final UUID UUID_WRITE_WS = UUID
             .fromString("0000fff1-0000-1000-8000-00805f9b34fb");
 
+    private static final String ElectronicScale="88:1B:99:04:0E:31";
 
 
     private static byte[] userData=new byte[] { (byte)0xFE,(byte)0x01, (byte)0x00,

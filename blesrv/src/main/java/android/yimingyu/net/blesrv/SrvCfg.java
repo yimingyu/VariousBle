@@ -52,7 +52,11 @@ public class SrvCfg {
             return null;
         }
     }
-    public static String getDeviceTypeByName(String name){
+    public static String getDeviceType(BluetoothDevice device){
+        String address=device.getAddress();
+        String type= knownDevices.get(address);
+        if(type!=null) return type;
+        String name=device.getName();
         if(name==null){
             return DEVICE_TYPE_BLE;
         }
@@ -70,20 +74,37 @@ public class SrvCfg {
     }
 
     public static GattMgr getMgrByDevice(BluetoothDevice device){
-        String type=getDeviceTypeByName(device.getName());
+        String type= getDeviceType(device);
         return getMgrByType(type,device.getAddress());
     }
 
-
-
-
-    private static final HashMap<String,Boolean> autoConnect=new HashMap<>();
+    private static final HashMap<String,String> knownDevices =new HashMap<>();
     static {
-        autoConnect.put("00:15:83:00:3D:84",true);
-        autoConnect.put("7C:EC:79:C1:C1:51",true);
-        autoConnect.put("88:1B:99:04:0E:31",true);
+        knownDevices.put("00:15:83:00:3D:84",DEVICE_TYPE_BPM);
+        knownDevices.put("7C:EC:79:C1:C1:51",DEVICE_TYPE_FT);
+        knownDevices.put("88:1B:99:04:0E:31",DEVICE_TYPE_WS);
     }
 
+    public static boolean needAutoConnect(String type,String address){
+        return false;
+    }
+//    private static final HashMap<String,List<String>> knownDevices=new HashMap<>();
+//    static {
+//        knownDevices.put(DEVICE_TYPE_BPM, Arrays.asList("00:15:83:00:3D:84"));
+//        knownDevices.put(DEVICE_TYPE_FT,Arrays.asList("7C:EC:79:C1:C1:51"));
+//        knownDevices.put(DEVICE_TYPE_WS,Arrays.asList("88:1B:99:04:0E:31"));
+//    }
+//    public static boolean needAutoConnect(String type,String address){
+//        return knownDevices.containsKey(type)&&knownDevices.get(type).contains(address);
+//    }
+//    public static String findTypeFromCache(String address){
+//        for(Map.Entry<String,List<String>> entry:knownDevices.entrySet()){
+//            String key=entry.getKey();
+//            List<String> val=entry.getValue();
+//            if(val.contains(address)) return key;
+//        }
+//        return DEVICE_TYPE_BLE;
+//    }
 
 
 }

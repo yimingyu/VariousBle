@@ -48,8 +48,7 @@ public class BluetoothUtil {
             gatt.setCharacteristicNotification(gattChar, enable);
             BluetoothGattDescriptor gatDes = gattChar.getDescriptor(UUIDs.UUID_CCC);
             gatDes.setValue(enable? ENABLE_NOTIFICATION_VALUE:DISABLE_NOTIFICATION_VALUE);
-            gatt.writeDescriptor(gatDes);
-            return true;
+            return gatt.writeDescriptor(gatDes);
         }catch (Exception e){
             return false;
         }
@@ -58,8 +57,7 @@ public class BluetoothUtil {
         try {
             BluetoothGattCharacteristic gattChar=gatt.getService(uuid_srv).getCharacteristic(uuid_write);
             gattChar.setValue(data);
-            gatt.writeCharacteristic(gattChar);
-            return true;
+            return gatt.writeCharacteristic(gattChar);
         }catch (Exception e){
             return false;
         }
