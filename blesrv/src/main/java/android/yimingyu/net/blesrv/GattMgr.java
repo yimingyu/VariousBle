@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.content.Context;
 import android.yimingyu.net.blesrv.util.BluetoothUtil;
+import android.yimingyu.net.blesrv.util.LogUtil;
 import android.yimingyu.net.btevent.base.UiEvent;
 
 import java.util.UUID;
@@ -35,12 +36,14 @@ public abstract class GattMgr extends BluetoothGattCallback{
 
     public String address;
     private BluetoothGatt bluetoothGatt;
+    protected Context context;
     public GattMgr(String address) {
         this.address = address;
     }
     public int connectStatus= STATE_DISCONNECTED;  //连接状态：0未连接、1连接中、2已连接、3断开中
 
     public int connect(BluetoothDevice device, Context context){//个人觉得这个方法比BluetoothGatt.connect()方法快
+        this.context=context;
         connectStatus=STATE_CONNECTING;
         bluetoothGatt=device.connectGatt(context,false,this);
         return connectStatus;

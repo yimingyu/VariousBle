@@ -19,6 +19,11 @@ public class BLE extends BtGattMgr {
     }
 
     @Override
+    public int defaultRetryTimes() {
+        return 10;
+    }
+
+    @Override
     public String getDeviceType() {
         return DEVICE_TYPE_BLE;
     }

@@ -139,7 +139,7 @@ public class BluetoothService extends Service{
 
     public HashMap<String,GattMgr> gattServices=new HashMap<>();
     public boolean connect(String address){
-        if(address==null||BluetoothAdapter.checkBluetoothAddress(address)){
+        if(address==null||!BluetoothAdapter.checkBluetoothAddress(address)){
             LogUtil.e("蓝牙地址"+address+"不合法");
             return false;
         }

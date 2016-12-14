@@ -59,14 +59,6 @@ public class BPM extends BtGattMgr {
         errCode.put(7,"压力超过300");
     }
 
-
-
-
-    @Override
-    public boolean defaultTryReconnect() {
-        return true;
-    }
-
     public BPM(String address) {
         super(address);
     }
