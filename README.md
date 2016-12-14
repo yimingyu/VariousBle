@@ -15,5 +15,11 @@
 
 # 模块的现状
 基本框架已经实现，如果增加新的设备，不需要改动Service中的代码，只需在Event模块中定义好事件，实现其GattMgr类，并在SrvCfg类中配置好事件、设备类型和GattMgr实现类的关联规则即可。
+
+
 更新：
-1、添加自动尝试连接功能，当设备不可用时，不断尝试连接直到成功，成功后断开不会再尝试连接。
+1、添加自动尝试连接功能，当设备不可用时，不断尝试连接直到成功或者达到一定次数，成功后断开不会再尝试连接。
+
+2、将某些动作由Service交给GattMgr，如将BluetoothGatt gatt=device.connectGatt(this,false,mgr);          mgr.setBluetoothGatt(gatt);封装到GattMgr内部。
+3、GattMgr内部增加操作状态判断，如正在连接中则直接返回不重新连接。
+4、考虑将配置文件以XML读入。
