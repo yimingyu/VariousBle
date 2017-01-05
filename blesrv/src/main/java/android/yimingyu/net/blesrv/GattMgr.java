@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.content.Context;
 import android.yimingyu.net.blesrv.util.BluetoothUtil;
-import android.yimingyu.net.blesrv.util.LogUtil;
 import android.yimingyu.net.btevent.base.UiEvent;
 
 import java.util.UUID;
@@ -63,6 +62,7 @@ public abstract class GattMgr extends BluetoothGattCallback{
         return connectStatus;
     }
     public void close(){
+        if(connectStatus==STATE_DISCONNECTED) return;
         connectStatus=STATE_DISCONNECTED;
         bluetoothGatt.close();
     }

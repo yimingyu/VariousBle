@@ -24,7 +24,13 @@ public class SrvCfg {
     public static final String DEVICE_TYPE_WS="体重秤";   //Weight Scale
     public static final String DEVICE_TYPE_FT="体温计";   //Fever Thermometer
     public static final String DEVICE_TYPE_WB="手环";     //WristBand
+    public static final String DEVICE_TYPE_LB="灯炮";     //LightBulb
 
+    /***
+     * maps1的作用是根据UiEvent得到GattMgr，通常用不到。比如血压计还没连接，用户却直接点击开始测量，服务收到这种UiEvent
+     * 可以不做任何处理，也可以人性化的自动连接血压计并开始测量，但是这种情况不应该出现，即没有连接血压计之前，不应该让
+     * 用户看到操作界面。
+     */
     private static final HashMap<Class<? extends UiEvent>,Class<? extends GattMgr>> maps1=new HashMap<>();
     static {
         maps1.put(EVENT_UI_BPM.class,BPM.class);
@@ -83,28 +89,10 @@ public class SrvCfg {
         knownDevices.put("00:15:83:00:3D:84",DEVICE_TYPE_BPM);
         knownDevices.put("7C:EC:79:C1:C1:51",DEVICE_TYPE_FT);
         knownDevices.put("88:1B:99:04:0E:31",DEVICE_TYPE_WS);
+        knownDevices.put("68:9E:19:0D:7B:57",DEVICE_TYPE_LB);
     }
 
     public static boolean needAutoConnect(String type,String address){
-        return false;
+        return knownDevices.containsKey(address);
     }
-//    private static final HashMap<String,List<String>> knownDevices=new HashMap<>();
-//    static {
-//        knownDevices.put(DEVICE_TYPE_BPM, Arrays.asList("00:15:83:00:3D:84"));
-//        knownDevices.put(DEVICE_TYPE_FT,Arrays.asList("7C:EC:79:C1:C1:51"));
-//        knownDevices.put(DEVICE_TYPE_WS,Arrays.asList("88:1B:99:04:0E:31"));
-//    }
-//    public static boolean needAutoConnect(String type,String address){
-//        return knownDevices.containsKey(type)&&knownDevices.get(type).contains(address);
-//    }
-//    public static String findTypeFromCache(String address){
-//        for(Map.Entry<String,List<String>> entry:knownDevices.entrySet()){
-//            String key=entry.getKey();
-//            List<String> val=entry.getValue();
-//            if(val.contains(address)) return key;
-//        }
-//        return DEVICE_TYPE_BLE;
-//    }
-
-
 }

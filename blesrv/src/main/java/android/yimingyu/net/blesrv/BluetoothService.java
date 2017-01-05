@@ -186,9 +186,16 @@ public class BluetoothService extends Service{
     public void onEvent(UiEvent uiEvent){
         if(!dealNormalEvent(uiEvent)){
             GattMgr mgr=gattServices.get(uiEvent.address);
-            if(mgr==null) mgr=SrvCfg.getMgrByEvent(uiEvent);
+            boolean notUsed=mgr==null;
+            /***
+             * 如果mgr为空表明设备还没有连接过，例如血压计还没连接，用户却直接点击开始测量，服务收到这种UiEvent
+             * 可以不做任何处理，也可以人性化的自动连接血压计并开始测量，但是这种情况不应该出现，即没有连接血压计之前，不应该让
+             * 用户看到操作界面。
+             */
+            if(notUsed) mgr=SrvCfg.getMgrByEvent(uiEvent);
             if(mgr!=null) {
                 mgr.dealUiEvent(uiEvent);
+                if(notUsed) gattServices.put(uiEvent.address,mgr);
             }else {
                 LogUtil.e("未知错误，没有得到"+uiEvent +"对应的GattMgr");
             }

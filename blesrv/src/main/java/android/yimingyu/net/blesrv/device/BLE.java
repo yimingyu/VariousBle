@@ -33,17 +33,9 @@ public class BLE extends BtGattMgr {
         return null;
     }
 
-    public void setSrvUUID(UUID uuid){
-        super.UUID_SRV=uuid;
-    }
-
     @Override
     public UUID getReadUUID() {
         return null;
-    }
-
-    public void setReadUUID(UUID uuid){
-        super.UUID_READ=uuid;
     }
 
     @Override
@@ -53,9 +45,5 @@ public class BLE extends BtGattMgr {
 
     @Override
     protected void dealUiEvent(UiEvent uiEvent) {
-    }
-
-    public void setWriteUUID(UUID uuid){
-        super.UUID_WRITE=uuid;
     }
 }
